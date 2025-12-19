@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Задача - {{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="task-detail-page">
+    <div class="page-header">
+        <h1><i class="fas fa-tasks"></i> Детали задачи</h1>
+        <a href="{{ url_for('employee_tasks') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Назад к задачам
+        </a>
+    </div>
+
+    <div class="task-detail-card">
+        <div class="task-header">
+            <h2>{{ task.title }}</h2>
+            <div class="task-status">
+                <span class="status-badge status-{{ task.status }}">
+                    {% if task.status == 'pending' %}Ожидает{% endif %}
+                    {% if task.status == 'in_progress' %}В работе{% endif %}
+                    {% if task.status == 'completed' %}Завершена{% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="task-body">
+            <div class="task-description">
+                <h3><i class="fas fa-info-circle"></i> Описание</h3>
+                <p>{{ task.description or 'Без описания' }}</p>
+            </div>
+            
+            <div class="task-meta">
+                <div class="meta-item">
+                    <i class="fas fa-user"></i>
+                    <span>Сотрудник: {{ task.employee_name }}</span>
+                </div>
+                
+                {% if task.due_date %}
+                <div class="meta-item">
+                    <i class="fas fa-calendar"></i>
+                    <span>Срок: {{ task.due_date[:10] }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="meta-item">
+                    <i class="fas fa-flag"></i>
+                    <span>Приоритет: 
+                        {% if task.priority == 'low' %}Низкий{% endif %}
+                        {% if task.priority == 'medium' %}Средний{% endif %}
+                        {% if task.priority == 'high' %}Высокий{% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="task-actions">
+                <form method="POST" action="{{ url_for('employee_task_detail', task_id=task.id) }}">
+                    <div class="form-group">
+                        <label for="status">Изменить статус:</label>
+                        <select id="status" name="status" class="form-control">
+                            <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>Ожидает</option>
+                            <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>В работе</option>
+                            <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>Завершена</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedback">Комментарий:</label>
+                        <textarea id="feedback" name="feedback" rows="3" 
+                                  placeholder="Ваши комментарии к выполнению задачи...">{{ task.feedback or '' }}</textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

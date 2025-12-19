@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Управление мобильными сотрудниками{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    {% if session.get('user_id') %}
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-users"></i>
+                <span>Mobile Employees</span>
+                {% if session.get('role') == 'admin' %}
+                <span class="role-badge badge-admin">Администратор</span>
+                {% else %}
+                <span class="role-badge badge-employee">Сотрудник</span>
+                {% endif %}
+            </div>
+            
+            <div class="user-info">
+                <span class="user-name">
+                    <i class="fas fa-user-circle"></i>
+                    {{ session.get('employee_name', session.get('username')) }}
+                </span>
+            </div>
+            
+            <ul class="nav-menu">
+                {% if session.get('role') == 'admin' %}
+                    <li><a href="{{ url_for('admin_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Панель</a></li>
+                    <li><a href="{{ url_for('admin_employees') }}"><i class="fas fa-user-tie"></i> Сотрудники</a></li>
+                    <li><a href="{{ url_for('admin_tasks') }}"><i class="fas fa-tasks"></i> Задачи</a></li>
+                    <li><a href="{{ url_for('admin_reports') }}"><i class="fas fa-chart-bar"></i> Отчеты</a></li>
+                    <li><a href="{{ url_for('admin_analytics') }}"><i class="fas fa-chart-line"></i> Аналитика</a></li>
+                {% else %}
+                    <li><a href="{{ url_for('employee_dashboard') }}"><i class="fas fa-tachometer-alt"></i> Панель</a></li>
+                    <li><a href="{{ url_for('employee_tasks') }}"><i class="fas fa-tasks"></i> Мои задачи</a></li>
+                    <li><a href="{{ url_for('employee_reports') }}"><i class="fas fa-file-alt"></i> Отчеты</a></li>
+                    <li><a href="{{ url_for('employee_messages') }}"><i class="fas fa-envelope"></i> Сообщения</a></li>
+                    <li><a href="{{ url_for('employee_profile') }}"><i class="fas fa-user"></i> Профиль</a></li>
+                {% endif %}
+                <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Выход</a></li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    {% if session.get('user_id') %}
+    <footer class="footer">
+        <p>&copy; 2025 Система управления мобильными сотрудниками 
+
+        </p>
+    </footer>
+    {% endif %}
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

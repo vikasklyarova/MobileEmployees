@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}Задачи - Администратор{% endblock %}
+
+{% block content %}
+<div class="tasks-page">
+    <div class="page-header">
+        <h1><i class="fas fa-tasks"></i> Управление задачами</h1>
+    </div>
+
+    <div class="tasks-container">
+        <div class="task-form-section">
+            <h2><i class="fas fa-plus-circle"></i> Добавить новую задачу</h2>
+            <form method="POST" action="{{ url_for('admin_add_task') }}" class="task-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="title">Заголовок *</label>
+                        <input type="text" id="title" name="title" required 
+                               placeholder="Введите заголовок задачи">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employee_id">Сотрудник *</label>
+                        <select id="employee_id" name="employee_id" required>
+                            <option value="">Выберите сотрудника</option>
+                            {% for employee in employees %}
+                            <option value="{{ employee.id }}">{{ employee.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="priority">Приоритет</label>
+                        <select id="priority" name="priority">
+                            <option value="low">Низкий</option>
+                            <option value="medium" selected>Средний</option>
+                            <option value="high">Высокий</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="due_date">Срок выполнения</label>
+                        <input type="date" id="due_date" name="due_date">
+                    </div>
+                    
+                    <div class="form-group full-width">
+                        <label for="description">Описание</label>
+                        <textarea id="description" name="description" 
+                                  rows="3" placeholder="Подробное описание задачи"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Добавить задачу
+                </button>
+            </form>
+        </div>
+
+        <div class="tasks-list-section">
+            <h2><i class="fas fa-list"></i> Список задач</h2>
+            
+            <div class="tasks-items">
+                {% for task in tasks %}
+                <div class="task-item">
+                    <div class="task-header">
+                        <h3>{{ task.title }}</h3>
+                        <div class="task-actions">
+                            <form method="POST" action="{{ url_for('update_task_status', id=task.id) }}" 
+                                  style="display: inline;">
+                                <select name="status" onchange="this.form.submit()" 
+                                        class="status-select status-{{ task.status }}">
+                                    <option value="pending" {% if task.status == 'pending' %}selected{% endif %}>
+                                        Ожидает
+                                    </option>
+                                    <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>
+                                        В работе
+                                    </option>
+                                    <option value="completed" {% if task.status == 'completed' %}selected{% endif %}>
+                                        Завершена
+                                    </option>
+                                </select>
+                            </form>
+                            <a href="{{ url_for('delete_task', id=task.id) }}" 
+                               class="btn-action btn-delete"
+                               onclick="return confirm('Удалить задачу?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div class="task-body">
+                        <p>{{ task.description or 'Без описания' }}</p>
+                        
+                        <div class="task-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-user"></i>
+                                <span>{{ task.employee_name }}</span>
+                            </div>
+                            
+                            <div class="meta-item">
+                                <i class="fas fa-flag"></i>
+                                <span class="priority-{{ task.priority }}">
+                                    {% if task.priority == 'low' %}Низкий{% endif %}
+                                    {% if task.priority == 'medium' %}Средний{% endif %}
+                                    {% if task.priority == 'high' %}Высокий{% endif %}
+                                </span>
+                            </div>
+                            
+                            {% if task.due_date %}
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ task.due_date[:10] }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <p class="no-tasks">Нет задач</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Админ панель - Управление сотрудниками{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1><i class="fas fa-tachometer-alt"></i> Административная панель</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #4CAF50;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_employees }}</h3>
+                <p>Всего сотрудников</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #2196F3;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.active_employees }}</h3>
+                <p>Активных</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #FF9800;">
+                <i class="fas fa-road"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.on_mission }}</h3>
+                <p>В командировке</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #F44336;">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.tasks_pending }}</h3>
+                <p>Ожидающих задач</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #9C27B0;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.efficiency }}%</h3>
+                <p>Эффективность</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #00BCD4;">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_reports }}</h3>
+                <p>Отчетов</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+        <div class="section-card">
+            <h2><i class="fas fa-clock"></i> Последние задачи</h2>
+            <div class="tasks-list">
+                {% for task in recent_tasks %}
+                <div class="task-item">
+                    <div class="task-title">{{ task.title }}</div>
+                    <div class="task-info">
+                        <span class="task-employee">{{ task.employee_name }}</span>
+                        <span class="task-status status-{{ task.status }}">
+                            {% if task.status == 'pending' %}Ожидает{% endif %}
+                            {% if task.status == 'in_progress' %}В работе{% endif %}
+                            {% if task.status == 'completed' %}Завершена{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <p>Нет задач</p>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('admin_tasks') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Все задачи
+            </a>
+        </div>
+
+        <div class="section-card">
+            <h2><i class="fas fa-map-marker-alt"></i> Быстрые действия</h2>
+            <div class="quick-actions">
+                <a href="{{ url_for('admin_add_employee') }}" class="quick-action">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Добавить сотрудника</span>
+                </a>
+                <a href="{{ url_for('admin_employees') }}" class="quick-action">
+                    <i class="fas fa-list"></i>
+                    <span>Список сотрудников</span>
+                </a>
+                <a href="{{ url_for('admin_tasks') }}" class="quick-action">
+                    <i class="fas fa-tasks"></i>
+                    <span>Управление задачами</span>
+                </a>
+                <a href="{{ url_for('admin_reports') }}" class="quick-action">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Отчеты</span>
+                </a>
+                <a href="{{ url_for('admin_analytics') }}" class="quick-action">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Аналитика</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card">
+        <h2><i class="fas fa-users"></i> Активные сотрудники</h2>
+        <div class="employees-grid">
+            {% for employee in employees[:6] %}
+            <div class="employee-card">
+                <div class="employee-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="employee-info">
+                    <h4>{{ employee.name }}</h4>
+                    <p>{{ employee.position }}</p>
+                    <span class="status-badge status-{{ employee.status }}">
+                        {% if employee.status == 'active' %}Активен{% endif %}
+                        {% if employee.status == 'on_mission' %}В командировке{% endif %}
+                        {% if employee.status == 'inactive' %}Неактивен{% endif %}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{{ url_for('admin_employees') }}" class="btn btn-secondary">
+            <i class="fas fa-eye"></i> Показать всех
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,517 @@
+{% extends "base.html" %}
+
+{% block title %}Мой профиль - Сотрудник{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="page-header">
+        <h1><i class="fas fa-user"></i> Мой профиль</h1>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-left">
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar-large">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="profile-title">
+                        <h2>{{ employee.name }}</h2>
+                        <p class="profile-position">{{ employee.position }}</p>
+                        <span class="status-badge status-{{ employee.status }}">
+                            {% if employee.status == 'active' %}Активен{% endif %}
+                            {% if employee.status == 'on_mission' %}В командировке{% endif %}
+                            {% if employee.status == 'inactive' %}Неактивен{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="profile-info-grid">
+                    <div class="info-section">
+                        <h3><i class="fas fa-id-card"></i> Основная информация</h3>
+                        <div class="info-item">
+                            <span class="info-label">Должность:</span>
+                            <span class="info-value">{{ employee.position }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Отдел:</span>
+                            <span class="info-value">{{ employee.department or 'Не указан' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ставка в час:</span>
+                            <span class="info-value">{{ employee.hourly_rate or 0 }} руб.</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Дата регистрации:</span>
+                            <span class="info-value">{{ employee.created_at[:10] }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h3><i class="fas fa-address-book"></i> Контактная информация</h3>
+                        <div class="info-item">
+                            <span class="info-label">Телефон:</span>
+                            <span class="info-value">{{ employee.phone }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">{{ employee.email }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Местоположение:</span>
+                            <span class="info-value">{{ employee.location or 'Не указано' }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Координаты:</span>
+                            <span class="info-value">
+                                {% if employee.latitude and employee.longitude %}
+                                {{ employee.latitude|round(4) }}, {{ employee.longitude|round(4) }}
+                                {% else %}
+                                Не указаны
+                                {% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+
+            </div>
+        </div>
+        
+        <div class="profile-right">
+            <div class="profile-stats-card">
+                <h3><i class="fas fa-chart-bar"></i> Статистика работы</h3>
+                <div class="stats-list">
+                    <div class="stat-item">
+                        <div class="stat-icon-small" style="background: #4CAF50;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Всего задач</span>
+                            <span class="stat-value">{{ stats.total_tasks }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-small" style="background: #2196F3;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Выполнено задач</span>
+                            <span class="stat-value">{{ stats.tasks_completed }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-small" style="background: #F44336;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Ожидающих задач</span>
+                            <span class="stat-value">{{ stats.tasks_pending }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-small" style="background: #FF9800;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Задач в день</span>
+                            <span class="stat-value">{{ stats.avg_tasks_per_day|round(1) }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-small" style="background: #9C27B0;">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Отчетов</span>
+                            <span class="stat-value">{{ stats.total_reports }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-item">
+                        <div class="stat-icon-small" style="background: #00BCD4;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-details">
+                            <span class="stat-label">Всего часов</span>
+                            <span class="stat-value">{{ stats.total_hours }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="quick-actions-card">
+                <h3><i class="fas fa-bolt"></i> Быстрые действия</h3>
+                <div class="quick-actions">
+                    <a href="{{ url_for('employee_tasks') }}" class="quick-action-btn">
+                        <i class="fas fa-tasks"></i>
+                        <span>Мои задачи</span>
+                    </a>
+                    <a href="{{ url_for('employee_reports') }}" class="quick-action-btn">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Отчеты</span>
+                    </a>
+                    <button class="quick-action-btn" onclick="updateMyLocation()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Обновить локацию</span>
+                    </button>
+                    <button class="quick-action-btn" onclick="openEditModal()">
+                        <i class="fas fa-edit"></i>
+                        <span>Редактировать</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit"></i> Редактировать профиль</h2>
+            <span class="close" onclick="closeEditModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="editForm" method="POST" action="{{ url_for('employee_update_profile') }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="edit_name">ФИО *</label>
+                        <input type="text" id="edit_name" name="name" value="{{ employee.name }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_position">Должность *</label>
+                        <input type="text" id="edit_position" name="position" value="{{ employee.position }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_department">Отдел</label>
+                        <input type="text" id="edit_department" name="department" value="{{ employee.department or '' }}">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_phone">Телефон *</label>
+                        <input type="tel" id="edit_phone" name="phone" value="{{ employee.phone }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_email">Email *</label>
+                        <input type="email" id="edit_email" name="email" value="{{ employee.email }}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit_location">Местоположение</label>
+                        <input type="text" id="edit_location" name="location" value="{{ employee.location or '' }}">
+                    </div>
+                </div>
+                <div class="form-group full-width">
+    <label for="new_password"><i class="fas fa-lock"></i> Новый пароль</label>
+    <input type="password" id="new_password" name="new_password" 
+           placeholder="Оставьте пустым, если не хотите менять">
+    <small>Для смены пароля заполните это поле</small>
+</div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save"></i> Сохранить изменения
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Отмена
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.profile-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+}
+
+.profile-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-right {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-card,
+.profile-stats-card,
+.quick-actions-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 25px;
+}
+
+.profile-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin: 25px 0;
+}
+
+@media (max-width: 1200px) {
+    .profile-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-card,
+    .profile-stats-card,
+    .quick-actions-card {
+        padding: 20px;
+    }
+    
+    .profile-info-grid {
+        gap: 20px;
+    }
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.quick-action-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    background: #f8f9fa;
+    border: 2px solid #eaeaea;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-align: center;
+    text-decoration: none;
+    color: #333;
+}
+
+.quick-action-btn:hover {
+    background: #e9ecef;
+    border-color: #4A90E2;
+    transform: translateY(-2px);
+}
+
+.quick-action-btn i {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #4A90E2;
+}
+
+.quick-action-btn span {
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 10% auto;
+    padding: 0;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eaeaea;
+    background: #f8f9fa;
+    border-radius: 10px 10px 0 0;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.close {
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #666;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #555;
+}
+
+.form-group input {
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #4A90E2;
+    outline: none;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    padding-top: 20px;
+    border-top: 1px solid #eaeaea;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+
+<script>
+function openEditModal() {
+    document.getElementById('editModal').style.display = 'block';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('editModal');
+    if (event.target == modal) {
+        closeEditModal();
+    }
+}
+
+function updateMyLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const data = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    location: 'Определено автоматически'
+                };
+                
+                fetch(`/api/update_location/{{ employee.id }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Ваше местоположение обновлено!');
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка обновления местоположения');
+                });
+            },
+            function(error) {
+                alert('Не удалось получить местоположение: ' + error.message);
+            }
+        );
+    } else {
+        alert('Геолокация не поддерживается вашим браузером');
+    }
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+    
+    fetch(this.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Профиль успешно обновлен!');
+            location.reload();
+        } else {
+            alert('Ошибка: ' + result.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении профиля');
+    });
+});
+</script>
+
+{% endblock %}

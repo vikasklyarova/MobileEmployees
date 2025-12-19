@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Аналитика - Администратор{% endblock %}
+
+{% block content %}
+<div class="analytics-page">
+    <div class="page-header">
+        <h1><i class="fas fa-chart-line"></i> Аналитика и статистика</h1>
+    </div>
+
+    <div class="analytics-grid">
+        <div class="analytics-card">
+            <h2><i class="fas fa-chart-pie"></i> Общая статистика</h2>
+            <div class="stats-list">
+                <div class="stat-item">
+                    <span class="stat-label">Всего сотрудников:</span>
+                    <span class="stat-value">{{ stats.total_employees }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Активных:</span>
+                    <span class="stat-value">{{ stats.active_employees }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">В командировке:</span>
+                    <span class="stat-value">{{ stats.on_mission }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Всего задач:</span>
+                    <span class="stat-value">{{ stats.total_tasks }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Ожидающих задач:</span>
+                    <span class="stat-value">{{ stats.tasks_pending }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Выполнено задач:</span>
+                    <span class="stat-value">{{ stats.tasks_completed }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Всего отчетов:</span>
+                    <span class="stat-value">{{ stats.total_reports }}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Эффективность:</span>
+                    <span class="stat-value">{{ stats.efficiency }}%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-card">
+            <h2><i class="fas fa-user-chart"></i> Эффективность сотрудников</h2>
+            <div class="employee-stats">
+                {% if employee_stats %}
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Сотрудник</th>
+                            <th>Должность</th>
+                            <th>Задачи</th>
+                            <th>Выполнено</th>
+                            <th>Часы</th>
+                            <th>Задач/день</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for emp in employee_stats %}
+                        <tr>
+                            <td>{{ emp.name }}</td>
+                            <td>{{ emp.position }}</td>
+                            <td>{{ emp.total_tasks }}</td>
+                            <td>{{ emp.tasks_completed }}</td>
+                            <td>{{ emp.total_hours }}</td>
+                            <td>{{ emp.avg_tasks_per_day|round(1) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>Нет данных о сотрудниках</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="analytics-card full-width">
+        <h2><i class="fas fa-trend-up"></i> Продуктивность по отделам</h2>
+        <div class="department-stats">
+            <p><i class="fas fa-info-circle"></i> Данные о продуктивности по отделам будут отображаться здесь</p>
+            <div class="departments-list">
+                <div class="department-item">
+                    <span class="dept-name">Отдел продаж</span>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 85%"></div>
+                    </div>
+                    <span class="dept-percent">85%</span>
+                </div>
+                <div class="department-item">
+                    <span class="dept-name">Логистика</span>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 72%"></div>
+                    </div>
+                    <span class="dept-percent">72%</span>
+                </div>
+                <div class="department-item">
+                    <span class="dept-name">Технический отдел</span>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 91%"></div>
+                    </div>
+                    <span class="dept-percent">91%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

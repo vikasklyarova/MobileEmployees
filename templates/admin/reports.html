@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Отчеты - Администратор{% endblock %}
+
+{% block content %}
+<div class="reports-page">
+    <div class="page-header">
+        <h1><i class="fas fa-file-alt"></i> Отчеты сотрудников</h1>
+    </div>
+
+    <div class="reports-container">
+        {% if reports %}
+        <div class="reports-table-container">
+            <table class="reports-table">
+                <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Сотрудник</th>
+                        <th>Часы</th>
+                        <th>Задачи</th>
+                        <th>Описание</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr>
+                        <td>{{ report.date }}</td>
+                        <td>{{ report.employee_name }}</td>
+                        <td>{{ report.hours_worked }} ч.</td>
+                        <td>{{ report.tasks_completed }}</td>
+                        <td>{{ report.description or 'Без описания' }}</td>
+                        <td>
+                            {% if report.hours_worked >= 8 %}
+                            <span class="status-badge status-completed">Выполнено</span>
+                            {% else %}
+                            <span class="status-badge status-pending">Неполный</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="reports-summary">
+            <h3><i class="fas fa-chart-bar"></i> Статистика отчетов</h3>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: #4CAF50;">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="summary-info">
+                        {% set total_hours = reports|sum(attribute='hours_worked') %}
+                        <h3>{{ total_hours|round(1) }}</h3>
+                        <p>Всего часов</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: #2196F3;">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="summary-info">
+                        {% set total_tasks = reports|sum(attribute='tasks_completed') %}
+                        <h3>{{ total_tasks }}</h3>
+                        <p>Всего задач</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon" style="background: #FF9800;">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="summary-info">
+                        {% set unique_employees = reports|map(attribute='employee_name')|unique|list|length %}
+                        <h3>{{ unique_employees }}</h3>
+                        <p>Сотрудников</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <i class="fas fa-file-alt fa-3x"></i>
+            <h3>Нет отчетов</h3>
+            <p>Отчеты сотрудников будут отображаться здесь</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

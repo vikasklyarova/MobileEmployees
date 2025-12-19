@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Сообщения - Сотрудник{% endblock %}
+
+{% block content %}
+<div class="messages-page">
+    <div class="page-header">
+        <h1><i class="fas fa-envelope"></i> Сообщения</h1>
+    </div>
+
+    <div class="messages-container">
+        <div class="messages-tabs">
+            <button class="tab-btn active" onclick="showTab('inbox')">
+                <i class="fas fa-inbox"></i> Входящие
+                {% if messages|length > 0 %}
+                <span class="badge">{{ messages|length }}</span>
+                {% endif %}
+            </button>
+            <button class="tab-btn" onclick="showTab('sent')">
+                <i class="fas fa-paper-plane"></i> Отправленные
+            </button>
+            <button class="tab-btn" onclick="showTab('new')">
+                <i class="fas fa-edit"></i> Новое сообщение
+            </button>
+        </div>
+
+        <div class="tab-content active" id="inbox-tab">
+            <h2><i class="fas fa-inbox"></i> Входящие сообщения</h2>
+            {% if messages %}
+            <div class="messages-list">
+                {% for message in messages %}
+                <div class="message-item {% if not message.is_read %}unread{% endif %}">
+                    <div class="message-header">
+                        <div class="message-sender">
+                            <i class="fas fa-user"></i>
+                            <strong>{{ message.sender_name }}</strong>
+                        </div>
+                        <div class="message-date">
+                            {{ message.created_at[:16] }}
+                        </div>
+                    </div>
+                    <div class="message-subject">
+                        <strong>{{ message.subject or 'Без темы' }}</strong>
+                    </div>
+                    <div class="message-preview">
+                        {{ message.content|truncate(100) }}
+                    </div>
+                    <div class="message-actions">
+                        <button class="btn-action btn-read" onclick="markAsRead('{{ message.id }}')">
+                            <i class="fas fa-envelope-open"></i> Прочитать
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-messages">
+                <i class="fas fa-inbox fa-3x"></i>
+                <h3>Нет сообщений</h3>
+                <p>Входящие сообщения будут отображаться здесь</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-content" id="sent-tab">
+            <h2><i class="fas fa-paper-plane"></i> Отправленные сообщения</h2>
+            {% if sent_messages %}
+            <div class="messages-list">
+                {% for message in sent_messages %}
+                <div class="message-item">
+                    <div class="message-header">
+                        <div class="message-receiver">
+                            <i class="fas fa-user"></i>
+                            <strong>Кому: {{ message.receiver_name }}</strong>
+                        </div>
+                        <div class="message-date">
+                            {{ message.created_at[:16] }}
+                        </div>
+                    </div>
+                    <div class="message-subject">
+                        <strong>{{ message.subject or 'Без темы' }}</strong>
+                    </div>
+                    <div class="message-preview">
+                        {{ message.content|truncate(100) }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-messages">
+                <i class="fas fa-paper-plane fa-3x"></i>
+                <h3>Нет отправленных сообщений</h3>
+                <p>Отправленные сообщения будут отображаться здесь</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="tab-content" id="new-tab">
+            <h2><i class="fas fa-edit"></i> Новое сообщение</h2>
+            <div class="new-message-form">
+                <form method="POST" action="{{ url_for('employee_send_message') }}">
+                    <div class="form-group">
+                        <label for="receiver_id">Получатель</label>
+                        <select id="receiver_id" name="receiver_id" required>
+                            <option value="">Выберите получателя</option>
+                            <option value="1">Администратор</option>
+                            <!-- Здесь должен быть список сотрудников -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Тема</label>
+                        <input type="text" id="subject" name="subject" 
+                               placeholder="Введите тему сообщения">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="content">Сообщение *</label>
+                        <textarea id="content" name="content" required 
+                                  rows="6" placeholder="Введите текст сообщения..."></textarea>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-paper-plane"></i> Отправить
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="showTab('inbox')">
+                            <i class="fas fa-times"></i> Отмена
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showTab(tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    document.getElementById(tabName + '-tab').classList.add('active');
+    
+    event.currentTarget.classList.add('active');
+}
+
+function markAsRead(messageId) {
+    fetch(`/api/messages/${messageId}/read`, {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert('Сообщение отмечено как прочитанное');
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при обновлении статуса сообщения');
+    });
+}
+</script>
+
+{% endblock %}

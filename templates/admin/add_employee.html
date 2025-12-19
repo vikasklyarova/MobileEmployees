@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Добавить сотрудника - Администратор{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h1><i class="fas fa-user-plus"></i> Добавить нового сотрудника</h1>
+    
+    <form method="POST" class="employee-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="name">ФИО *</label>
+                <input type="text" id="name" name="name" required 
+                       placeholder="Иванов Иван Иванович">
+            </div>
+            
+            <div class="form-group">
+                <label for="position">Должность *</label>
+                <input type="text" id="position" name="position" required 
+                       placeholder="Менеджер по продажам">
+            </div>
+            
+            <div class="form-group">
+                <label for="department">Отдел</label>
+                <input type="text" id="department" name="department" 
+                       placeholder="Отдел продаж">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone">Телефон *</label>
+                <input type="tel" id="phone" name="phone" required 
+                       placeholder="+7 (999) 123-45-67">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email * (логин)</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="ivanov@company.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Пароль для входа *</label>
+                <input type="text" id="password" name="password" required 
+                       value="employee123" placeholder="Введите пароль">
+                <small>Пароль будет отправлен сотруднику по email</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="hourly_rate">Ставка в час (руб.)</label>
+                <input type="number" id="hourly_rate" name="hourly_rate" 
+                       value="500" step="50">
+            </div>
+            
+            <div class="form-group">
+                <label for="status">Статус</label>
+                <select id="status" name="status">
+                    <option value="active">Активен</option>
+                    <option value="on_mission">В командировке</option>
+                    <option value="inactive">Неактивен</option>
+                </select>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="location">Текущее местоположение</label>
+                <input type="text" id="location" name="location" 
+                       placeholder="Москва, ул. Пушкина, д. 1">
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Сохранить
+            </button>
+            <a href="{{ url_for('admin_employees') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Отмена
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

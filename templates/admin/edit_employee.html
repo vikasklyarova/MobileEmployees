@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Редактировать сотрудника - Администратор{% endblock %}
+
+{% block content %}
+<div class="form-page">
+    <h1><i class="fas fa-edit"></i> Редактировать сотрудника</h1>
+    <p class="employee-info">Редактирование данных сотрудника: <strong>{{ employee.name }}</strong></p>
+    
+    <form method="POST" class="employee-form">
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="name"><i class="fas fa-user"></i> ФИО *</label>
+                <input type="text" id="name" name="name" value="{{ employee.name }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="position"><i class="fas fa-briefcase"></i> Должность *</label>
+                <input type="text" id="position" name="position" value="{{ employee.position }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="department"><i class="fas fa-building"></i> Отдел</label>
+                <input type="text" id="department" name="department" value="{{ employee.department or '' }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="phone"><i class="fas fa-phone"></i> Телефон *</label>
+                <input type="tel" id="phone" name="phone" value="{{ employee.phone }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email"><i class="fas fa-envelope"></i> Email * (логин)</label>
+                <input type="email" id="email" name="email" value="{{ employee.email }}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password"><i class="fas fa-lock"></i> Новый пароль</label>
+                <input type="text" id="password" name="password" 
+                       placeholder="Оставьте пустым, чтобы не менять">
+                <small>Заполните только для смены пароля</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="hourly_rate"><i class="fas fa-money-bill-wave"></i> Ставка в час (руб.)</label>
+                <input type="number" id="hourly_rate" name="hourly_rate" 
+                       value="{{ employee.hourly_rate or 0 }}" step="50" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="status"><i class="fas fa-user-check"></i> Статус</label>
+                <select id="status" name="status">
+                    <option value="active" {% if employee.status == 'active' %}selected{% endif %}>Активен</option>
+                    <option value="on_mission" {% if employee.status == 'on_mission' %}selected{% endif %}>В командировке</option>
+                    <option value="inactive" {% if employee.status == 'inactive' %}selected{% endif %}>Неактивен</option>
+                </select>
+            </div>
+            
+            <div class="form-group full-width">
+                <label for="location"><i class="fas fa-map-marker-alt"></i> Текущее местоположение</label>
+                <input type="text" id="location" name="location" value="{{ employee.location or '' }}">
+            </div>
+            
+            {% if employee.latitude and employee.longitude %}
+            <div class="form-group full-width">
+                <p class="coordinates-info">
+                    <i class="fas fa-map-pin"></i> 
+                    Координаты: {{ "%.6f"|format(employee.latitude) }}, {{ "%.6f"|format(employee.longitude) }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-save"></i> Сохранить изменения
+            </button>
+            <a href="{{ url_for('admin_employees') }}" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Отмена
+            </a>
+            <a href="{{ url_for('admin_delete_employee', id=employee.id) }}" 
+               class="btn btn-danger"
+               onclick="return confirm('Вы уверены, что хотите удалить сотрудника {{ employee.name }}?')">
+                <i class="fas fa-trash"></i> Удалить
+            </a>
+        </div>
+    </form>
+</div>
+
+<style>
+.employee-info {
+    color: #666;
+    margin-bottom: 25px;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 3px solid #2196F3;
+}
+
+.coordinates-info {
+    background: #e8f5e8;
+    padding: 10px;
+    border-radius: 6px;
+    color: #2e7d32;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.coordinates-info i {
+    font-size: 16px;
+}
+
+.form-group small {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+    display: block;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Управление сотрудниками{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1><i class="fas fa-tachometer-alt"></i> Панель управления</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #4CAF50;">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total }}</h3>
+                <p>Всего сотрудников</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #2196F3;">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.active }}</h3>
+                <p>Активных</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #FF9800;">
+                <i class="fas fa-road"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.on_mission }}</h3>
+                <p>В командировке</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #F44336;">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.tasks_pending }}</h3>
+                <p>Ожидающих задач</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+        <div class="section-card">
+            <h2><i class="fas fa-clock"></i> Последние задачи</h2>
+            <div class="tasks-list">
+                {% for task in recent_tasks %}
+                <div class="task-item">
+                    <div class="task-title">{{ task.title }}</div>
+                    <div class="task-info">
+                        <span class="task-employee">{{ task.employee_name }}</span>
+                        <span class="task-status status-{{ task.status }}">
+                            {% if task.status == 'pending' %}Ожидает{% endif %}
+                            {% if task.status == 'in_progress' %}В работе{% endif %}
+                            {% if task.status == 'completed' %}Завершена{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% else %}
+                <p>Нет задач</p>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('tasks') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Все задачи
+            </a>
+        </div>
+
+        <div class="section-card">
+            <h2><i class="fas fa-map-marker-alt"></i> Быстрые действия</h2>
+            <div class="quick-actions">
+                <a href="{{ url_for('add_employee') }}" class="quick-action">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Добавить сотрудника</span>
+                </a>
+                <a href="{{ url_for('employees') }}" class="quick-action">
+                    <i class="fas fa-list"></i>
+                    <span>Список сотрудников</span>
+                </a>
+                <a href="{{ url_for('tasks') }}" class="quick-action">
+                    <i class="fas fa-tasks"></i>
+                    <span>Управление задачами</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="map-container">
+        <h2><i class="fas fa-map"></i> Карта сотрудников</h2>
+        <div id="employeeMap" class="map-placeholder">
+            <div class="map-content">
+                <i class="fas fa-map-marked-alt"></i>
+                <p>Карта сотрудников</p>
+                <small>Здесь будет отображаться расположение сотрудников</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadEmployeeLocations() {
+        fetch('/api/employee_locations')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Местоположения сотрудников:', data);
+            });
+    }
+    
+    document.addEventListener('DOMContentLoaded', loadEmployeeLocations);
+</script>
+{% endblock %}

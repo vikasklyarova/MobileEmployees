@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Панель сотрудника{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1><i class="fas fa-tachometer-alt"></i> Панель сотрудника</h1>
+    
+    <div class="employee-info-card">
+        <div class="employee-avatar-large">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="employee-details">
+            <h2>{{ employee.name }}</h2>
+            <p><i class="fas fa-briefcase"></i> {{ employee.position }}</p>
+            <p><i class="fas fa-building"></i> {{ employee.department or 'Не указан' }}</p>
+            <p><i class="fas fa-map-marker-alt"></i> {{ employee.location or 'Не указано' }}</p>
+            <span class="status-badge status-{{ employee.status }}">
+                {% if employee.status == 'active' %}Активен{% endif %}
+                {% if employee.status == 'on_mission' %}В командировке{% endif %}
+                {% if employee.status == 'inactive' %}Неактивен{% endif %}
+            </span>
+        </div>
+    </div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #4CAF50;">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.total_tasks }}</h3>
+                <p>Всего задач</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #F44336;">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.tasks_pending }}</h3>
+                <p>Ожидающих</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #2196F3;">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.tasks_completed }}</h3>
+                <p>Выполнено</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon" style="background: #FF9800;">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ stats.avg_tasks_per_day|round(1) }}</h3>
+                <p>Задач/день</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-sections">
+        <div class="section-card">
+            <h2><i class="fas fa-clock"></i> Активные задачи</h2>
+            <div class="tasks-list">
+                {% for task in tasks %}
+                <div class="task-item">
+                    <div class="task-title">{{ task.title }}</div>
+                    <div class="task-info">
+                        <span class="task-status status-{{ task.status }}">
+                            {% if task.status == 'pending' %}Ожидает{% endif %}
+                            {% if task.status == 'in_progress' %}В работе{% endif %}
+                            {% if task.status == 'completed' %}Завершена{% endif %}
+                        </span>
+                        {% if task.due_date %}
+                        <span class="task-due">
+                            <i class="fas fa-calendar"></i> {{ task.due_date[:10] }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <a href="{{ url_for('employee_task_detail', task_id=task.id) }}" 
+                       class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> Подробнее
+                    </a>
+                </div>
+                {% else %}
+                <p>Нет активных задач</p>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('employee_tasks') }}" class="btn btn-primary">
+                <i class="fas fa-list"></i> Все задачи
+            </a>
+        </div>
+
+        <div class="section-card">
+            <h2><i class="fas fa-file-alt"></i> Последние отчеты</h2>
+            <div class="reports-list">
+                {% for report in recent_reports %}
+                <div class="report-item">
+                    <div class="report-date">{{ report.date }}</div>
+                    <div class="report-info">
+                        <span><i class="fas fa-clock"></i> {{ report.hours_worked }} ч.</span>
+                        <span><i class="fas fa-tasks"></i> {{ report.tasks_completed }} зад.</span>
+                    </div>
+                    <div class="report-desc">{{ report.description[:50] }}...</div>
+                </div>
+                {% else %}
+                <p>Нет отчетов</p>
+                {% endfor %}
+            </div>
+            <a href="{{ url_for('employee_reports') }}" class="btn btn-success">
+                <i class="fas fa-plus"></i> Новый отчет
+            </a>
+        </div>
+    </div>
+
+    <div class="quick-actions-section">
+        <h2><i class="fas fa-bolt"></i> Быстрые действия</h2>
+        <div class="quick-actions-grid">
+            <a href="{{ url_for('employee_reports') }}" class="quick-action-btn">
+                <i class="fas fa-file-alt"></i>
+                <span>Сдать отчет</span>
+            </a>
+            <a href="{{ url_for('employee_tasks') }}" class="quick-action-btn">
+                <i class="fas fa-tasks"></i>
+                <span>Мои задачи</span>
+            </a>
+            <a href="{{ url_for('employee_messages') }}" class="quick-action-btn">
+                <i class="fas fa-envelope"></i>
+                <span>Сообщения</span>
+            </a>
+            <button class="quick-action-btn" onclick="updateMyLocation()">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Обновить местоположение</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateMyLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const data = {
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    location: 'Определено автоматически'
+                };
+                
+                fetch(`/api/update_location/{{ employee.id }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Ваше местоположение обновлено!');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка обновления местоположения');
+                });
+            },
+            function(error) {
+                alert('Не удалось получить местоположение: ' + error.message);
+            }
+        );
+    } else {
+        alert('Геолокация не поддерживается вашим браузером');
+    }
+}
+</script>
+{% endblock %}
